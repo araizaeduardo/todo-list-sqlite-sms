@@ -11,6 +11,7 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
 - Editar fechas de vencimiento de las tareas
 - Buscar tareas específicas
 - Recibir tareas por SMS y visualizarlas en la interfaz
+- Gestionar números de teléfono autorizados para enviar tareas por SMS
 
 ## Pasos para configurar y ejecutar el proyecto
 
@@ -22,6 +23,7 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
 3. Configurar las variables de entorno:
    - Crear un archivo `.env` en la raíz del proyecto
    - Añadir la clave API de Telnyx: `TELNYX_API_KEY=tu_clave_api_aqui`
+   - Añadir la contraseña para gestionar números autorizados: `AUTHORIZED_NUMBERS_PASSWORD=tu_contraseña_segura_aqui`
 4. Inicializar la base de datos:
    ```
    python app.py
@@ -41,6 +43,7 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
 5. **Recepción de tareas por SMS**: Integración con Telnyx para recibir tareas vía mensaje de texto.
 6. **Actualización en tiempo real**: Las tareas recibidas por SMS se actualizan automáticamente en la interfaz.
 7. **Persistencia de datos**: Almacenamiento de tareas en una base de datos SQLite.
+8. **Gestión de números autorizados**: Añadir, editar y eliminar números de teléfono autorizados para enviar tareas por SMS.
 
 ## Tecnologías utilizadas
 
@@ -49,4 +52,4 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
 - Base de datos: SQLite
 - API de SMS: Telnyx
 
-Este proyecto demuestra la implementación de una aplicación web full-stack con funcionalidades avanzadas de gestión de tareas y integración de servicios externos.
+Este proyecto demuestra la implementación de una aplicación web full-stack con funcionalidades avanzadas de gestión de tareas, integración de servicios externos y control de acceso para funciones sensibles.

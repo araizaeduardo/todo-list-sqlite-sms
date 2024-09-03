@@ -5,11 +5,19 @@ from dotenv import load_dotenv
 import os
 import telnyx
 import re
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
 telnyx.api_key = os.getenv('TELNYX_API_KEY')
 
 app = Flask(__name__)
+
+# Use the password from .env file
+authorized_numbers_password = os.getenv('AUTHORIZED_NUMBERS_PASSWORD')
+if not authorized_numbers_password:
+    raise ValueError("AUTHORIZED_NUMBERS_PASSWORD not set in .env file")
+
+app.config['AUTHORIZED_NUMBERS_PASSWORD'] = generate_password_hash(authorized_numbers_password)
 
 def init_db():
     conn = sqlite3.connect('tasks.db')
@@ -100,8 +108,19 @@ def update_task(task_id):
         conn.close()
         return '', 204
 
+@app.route('/check_password', methods=['POST'])
+def check_password():
+    data = request.json
+    if check_password_hash(app.config['AUTHORIZED_NUMBERS_PASSWORD'], data['password']):
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False}), 401
+
 @app.route('/authorized_numbers', methods=['GET', 'POST'])
 def authorized_numbers():
+    if not check_password_hash(app.config['AUTHORIZED_NUMBERS_PASSWORD'], request.headers.get('X-Password')):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     conn = sqlite3.connect('tasks.db')
     c = conn.cursor()
     
@@ -136,6 +155,9 @@ def authorized_numbers():
 
 @app.route('/authorized_numbers/<int:number_id>', methods=['PUT', 'DELETE'])
 def update_authorized_number(number_id):
+    if not check_password_hash(app.config['AUTHORIZED_NUMBERS_PASSWORD'], request.headers.get('X-Password')):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     conn = sqlite3.connect('tasks.db')
     c = conn.cursor()
     

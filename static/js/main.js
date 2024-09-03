@@ -284,42 +284,83 @@ window.onload = function() {
 // Add this to your existing JavaScript file
 
 let authorizedNumbersVisible = false;
+let password = '';
 
 function toggleAuthorizedNumbers() {
     const section = document.getElementById('authorizedNumbersSection');
     const button = document.getElementById('toggleAuthorizedNumbersBtn');
+    const passwordPrompt = document.getElementById('passwordPrompt');
+    const authorizedNumbersContent = document.getElementById('authorizedNumbersContent');
     
     if (authorizedNumbersVisible) {
         section.style.display = 'none';
-        button.textContent = 'Show Authorized Numbers';
+        button.textContent = 'Manage Authorized Numbers';
         authorizedNumbersVisible = false;
+        password = '';
     } else {
         section.style.display = 'block';
         button.textContent = 'Hide Authorized Numbers';
         authorizedNumbersVisible = true;
-        loadAuthorizedNumbers();
+        passwordPrompt.style.display = 'block';
+        authorizedNumbersContent.style.display = 'none';
     }
 }
 
+document.getElementById('submitPasswordBtn').addEventListener('click', function() {
+    const passwordInput = document.getElementById('passwordInput');
+    password = passwordInput.value;
+    
+    fetch('/check_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('passwordPrompt').style.display = 'none';
+            document.getElementById('authorizedNumbersContent').style.display = 'block';
+            loadAuthorizedNumbers();
+        } else {
+            alert('Incorrect password');
+            passwordInput.value = '';
+            password = '';
+        }
+    });
+});
+
 function loadAuthorizedNumbers() {
-    fetch('/authorized_numbers')
-        .then(response => response.json())
-        .then(numbers => {
-            const numbersList = document.getElementById('authorizedNumbers');
-            numbersList.innerHTML = '';
-            numbers.forEach(number => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                li.innerHTML = `
-                    <span>${number.phoneNumber} - ${number.description}</span>
-                    <div>
-                        <button class="btn btn-sm btn-outline-primary me-2" onclick="editAuthorizedNumber(${number.id})">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAuthorizedNumber(${number.id})">Delete</button>
-                    </div>
-                `;
-                numbersList.appendChild(li);
-            });
+    fetch('/authorized_numbers', {
+        headers: { 'X-Password': password }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            throw new Error('Unauthorized');
+        }
+        return response.json();
+    })
+    .then(numbers => {
+        const numbersList = document.getElementById('authorizedNumbers');
+        numbersList.innerHTML = '';
+        numbers.forEach(number => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
+                <span>${number.phoneNumber} - ${number.description}</span>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="editAuthorizedNumber(${number.id})">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAuthorizedNumber(${number.id})">Delete</button>
+                </div>
+            `;
+            numbersList.appendChild(li);
         });
+    })
+    .catch(error => {
+        if (error.message === 'Unauthorized') {
+            alert('Session expired. Please enter the password again.');
+            toggleAuthorizedNumbers();
+        }
+    });
 }
 
 document.getElementById('addAuthorizedNumberForm').onsubmit = function(e) {
@@ -328,7 +369,10 @@ document.getElementById('addAuthorizedNumberForm').onsubmit = function(e) {
     const description = document.getElementById('description').value;
     fetch('/authorized_numbers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-Password': password
+        },
         body: JSON.stringify({ phoneNumber, description })
     })
         .then(response => response.json())
@@ -344,7 +388,10 @@ function editAuthorizedNumber(id) {
     const newDescription = prompt('Enter new description:');
     fetch(`/authorized_numbers/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-Password': password
+        },
         body: JSON.stringify({ phoneNumber: newPhoneNumber, description: newDescription })
     })
         .then(() => loadAuthorizedNumbers());
@@ -352,7 +399,10 @@ function editAuthorizedNumber(id) {
 
 function deleteAuthorizedNumber(id) {
     if (confirm('Are you sure you want to delete this number?')) {
-        fetch(`/authorized_numbers/${id}`, { method: 'DELETE' })
+        fetch(`/authorized_numbers/${id}`, { 
+            method: 'DELETE',
+            headers: { 'X-Password': password }
+        })
             .then(() => loadAuthorizedNumbers());
     }
 }
