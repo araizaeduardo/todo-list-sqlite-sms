@@ -10,14 +10,7 @@
     <div class="container mt-5">
         <h1 class="mb-4">Lista de Tareas Avanzada</h1>
         <div class="row mb-3">
-            <div class="col-md-8">
-                <div class="input-group">
-                    <input type="text" id="taskInput" class="form-control" placeholder="Nueva tarea">
-                    <input type="date" id="dueDateInput" class="form-control">
-                    <button class="btn btn-primary" type="button" onclick="addTaskFromInput()">Agregar</button>
-                </div>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-12">
                 <input type="text" id="searchInput" class="form-control" placeholder="Buscar tareas">
             </div>
         </div>
@@ -42,26 +35,39 @@
         </div>
         <div class="row mt-4">
             <div class="col-md-12">
-                <h2>Authorized Numbers</h2>
-                <button id="toggleAuthorizedNumbersBtn" class="btn btn-secondary mb-2">Manage Authorized Numbers</button>
+                <h2>Área Restringida</h2>
+                <button id="toggleAuthorizedNumbersBtn" class="btn btn-secondary mb-2">Gestionar Números Autorizados</button>
                 <div id="authorizedNumbersSection" style="display: none;">
                     <div id="passwordPrompt">
-                        <input type="password" id="passwordInput" class="form-control mb-2" placeholder="Enter password">
-                        <button id="submitPasswordBtn" class="btn btn-primary">Submit</button>
+                        <input type="password" id="passwordInput" class="form-control mb-2" placeholder="Ingrese la contraseña">
+                        <button id="submitPasswordBtn" class="btn btn-primary">Enviar</button>
                     </div>
                     <div id="authorizedNumbersContent" style="display: none;">
+                        <h3>Números Autorizados</h3>
                         <div id="authorizedNumbers"></div>
                         <form id="addAuthorizedNumberForm" class="mt-3">
                             <div class="input-group mb-3">
-                                <input type="text" id="phoneNumber" class="form-control" placeholder="Phone Number" required>
-                                <input type="text" id="description" class="form-control" placeholder="Description">
-                                <button class="btn btn-primary" type="submit">Add Number</button>
+                                <input type="text" id="phoneNumber" class="form-control" placeholder="Número de Teléfono" required>
+                                <input type="text" id="description" class="form-control" placeholder="Descripción">
+                                <button class="btn btn-primary" type="submit">Agregar Número</button>
                             </div>
                         </form>
                         
-                        <!-- Tareas Pendientes Recibidas por SMS moved here -->
                         <h3 class="mt-4">Tareas Recibidas por SMS</h3>
                         <ul id="smsPendingTasksList" class="list-group mb-4"></ul>
+                        
+                        <div id="addTaskForm" style="display: none;">
+                            <h3 class="mt-4">Agregar Tarea</h3>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <input type="text" id="taskInput" class="form-control" placeholder="Nueva tarea">
+                                        <input type="date" id="dueDateInput" class="form-control">
+                                        <button class="btn btn-primary" type="button" onclick="addTaskFromInput()">Agregar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

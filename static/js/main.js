@@ -140,11 +140,7 @@ function moveTask(li, newStatus) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Task moved successfully:', data);
-        loadTasks();
+        loadTasks(); // Actualizar las tareas inmediatamente después de mover una tarea
     })
     .catch(error => {
         console.error('Error moving task:', error);
@@ -160,11 +156,7 @@ function deleteTask(li) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Task deleted successfully:', data);
-        loadTasks();
+        loadTasks(); // Actualizar las tareas inmediatamente después de eliminar una tarea
     })
     .catch(error => {
         console.error('Error deleting task:', error);
@@ -192,11 +184,7 @@ function editDueDate(li) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Due date updated successfully:', data);
-            loadTasks();
+            loadTasks(); // Actualizar las tareas inmediatamente después de editar la fecha
         })
         .catch(error => {
             console.error('Error updating due date:', error);
@@ -291,18 +279,21 @@ function toggleAuthorizedNumbers() {
     const button = document.getElementById('toggleAuthorizedNumbersBtn');
     const passwordPrompt = document.getElementById('passwordPrompt');
     const authorizedNumbersContent = document.getElementById('authorizedNumbersContent');
+    const addTaskForm = document.getElementById('addTaskForm');
     
     if (authorizedNumbersVisible) {
         section.style.display = 'none';
         button.textContent = 'Manage Authorized Numbers';
         authorizedNumbersVisible = false;
         password = '';
+        addTaskForm.style.display = 'none'; // Hide the add task form when closing the section
     } else {
         section.style.display = 'block';
         button.textContent = 'Hide Authorized Numbers';
         authorizedNumbersVisible = true;
         passwordPrompt.style.display = 'block';
         authorizedNumbersContent.style.display = 'none';
+        addTaskForm.style.display = 'none'; // Ensure the add task form is hidden when opening the section
     }
 }
 
@@ -320,6 +311,7 @@ document.getElementById('submitPasswordBtn').addEventListener('click', function(
         if (data.success) {
             document.getElementById('passwordPrompt').style.display = 'none';
             document.getElementById('authorizedNumbersContent').style.display = 'block';
+            document.getElementById('addTaskForm').style.display = 'block'; // Show the add task form
             loadAuthorizedNumbers();
         } else {
             alert('Incorrect password');
