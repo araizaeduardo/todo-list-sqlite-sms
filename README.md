@@ -28,11 +28,7 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
    ```
    python app.py
    ```
-5. Ejecutar la aplicación:
-   ```
-   flask run
-   ```
-6. Acceder a la aplicación en `http://localhost:5000`
+5. Acceder a la aplicación en `http://localhost:5000`
 
 ## Funcionalidades principales
 
