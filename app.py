@@ -4,6 +4,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 import telnyx
+import re
 
 load_dotenv()
 telnyx.api_key = os.getenv('TELNYX_API_KEY')
@@ -21,6 +22,10 @@ def init_db():
                   created_date DATE NOT NULL,
                   completed_date DATE,
                   phone_number TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS authorized_numbers
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  phone_number TEXT UNIQUE NOT NULL,
+                  description TEXT)''')
     conn.commit()
     conn.close()
 
@@ -95,6 +100,71 @@ def update_task(task_id):
         conn.close()
         return '', 204
 
+@app.route('/authorized_numbers', methods=['GET', 'POST'])
+def authorized_numbers():
+    conn = sqlite3.connect('tasks.db')
+    c = conn.cursor()
+    
+    if request.method == 'POST':
+        data = request.json
+        phone_number = data['phoneNumber']
+        description = data.get('description', '')
+        
+        if not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            return jsonify({"error": "Invalid phone number format"}), 400
+        
+        try:
+            c.execute("INSERT INTO authorized_numbers (phone_number, description) VALUES (?, ?)",
+                      (phone_number, description))
+            conn.commit()
+            number_id = c.lastrowid
+            conn.close()
+            return jsonify({'id': number_id}), 201
+        except sqlite3.IntegrityError:
+            conn.close()
+            return jsonify({"error": "Phone number already exists"}), 400
+    
+    else:
+        c.execute("SELECT id, phone_number, description FROM authorized_numbers")
+        numbers = c.fetchall()
+        conn.close()
+        return jsonify([{
+            'id': n[0],
+            'phoneNumber': n[1],
+            'description': n[2]
+        } for n in numbers])
+
+@app.route('/authorized_numbers/<int:number_id>', methods=['PUT', 'DELETE'])
+def update_authorized_number(number_id):
+    conn = sqlite3.connect('tasks.db')
+    c = conn.cursor()
+    
+    if request.method == 'PUT':
+        data = request.json
+        phone_number = data.get('phoneNumber')
+        description = data.get('description')
+        
+        if phone_number and not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            return jsonify({"error": "Invalid phone number format"}), 400
+        
+        try:
+            if phone_number:
+                c.execute("UPDATE authorized_numbers SET phone_number = ? WHERE id = ?", (phone_number, number_id))
+            if description is not None:
+                c.execute("UPDATE authorized_numbers SET description = ? WHERE id = ?", (description, number_id))
+            conn.commit()
+            conn.close()
+            return '', 204
+        except sqlite3.IntegrityError:
+            conn.close()
+            return jsonify({"error": "Phone number already exists"}), 400
+    
+    elif request.method == 'DELETE':
+        c.execute("DELETE FROM authorized_numbers WHERE id = ?", (number_id,))
+        conn.commit()
+        conn.close()
+        return '', 204
+
 @app.route('/smswebhook', methods=['POST'])
 def webhook():
     try:
@@ -102,6 +172,14 @@ def webhook():
         if data['data']['event_type'] == 'message.received':
             message = data['data']['payload']['text']
             from_number = data['data']['payload']['from']['phone_number']
+            
+            # Check if the number is authorized
+            conn = sqlite3.connect('tasks.db')
+            c = conn.cursor()
+            c.execute("SELECT id FROM authorized_numbers WHERE phone_number = ?", (from_number,))
+            if not c.fetchone():
+                conn.close()
+                return jsonify({"error": "Unauthorized phone number"}), 403
             
             # Parse the message to extract task details
             task_parts = message.split(',')
@@ -116,12 +194,11 @@ def webhook():
                     due_date = datetime.now().strftime('%Y-%m-%d')
                 
                 # Store the task in the database, including the phone number
-                conn = sqlite3.connect('tasks.db')
-                c = conn.cursor()
                 c.execute("INSERT INTO tasks (text, due_date, status, created_date, phone_number) VALUES (?, ?, ?, ?, ?)",
                           (task_text, due_date, status, datetime.now().strftime('%Y-%m-%d'), from_number))
                 conn.commit()
-                conn.close()
+            
+            conn.close()
         
         return '', 200
     except Exception as e:

@@ -140,6 +140,10 @@ function moveTask(li, newStatus) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Task moved successfully:', data);
         loadTasks();
     })
     .catch(error => {
@@ -156,6 +160,10 @@ function deleteTask(li) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Task deleted successfully:', data);
         loadTasks();
     })
     .catch(error => {
@@ -184,6 +192,10 @@ function editDueDate(li) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Due date updated successfully:', data);
             loadTasks();
         })
         .catch(error => {
@@ -268,3 +280,82 @@ window.onload = function() {
     loadTasks();
     loadSMSTasks();
 };
+
+// Add this to your existing JavaScript file
+
+let authorizedNumbersVisible = false;
+
+function toggleAuthorizedNumbers() {
+    const section = document.getElementById('authorizedNumbersSection');
+    const button = document.getElementById('toggleAuthorizedNumbersBtn');
+    
+    if (authorizedNumbersVisible) {
+        section.style.display = 'none';
+        button.textContent = 'Show Authorized Numbers';
+        authorizedNumbersVisible = false;
+    } else {
+        section.style.display = 'block';
+        button.textContent = 'Hide Authorized Numbers';
+        authorizedNumbersVisible = true;
+        loadAuthorizedNumbers();
+    }
+}
+
+function loadAuthorizedNumbers() {
+    fetch('/authorized_numbers')
+        .then(response => response.json())
+        .then(numbers => {
+            const numbersList = document.getElementById('authorizedNumbers');
+            numbersList.innerHTML = '';
+            numbers.forEach(number => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    <span>${number.phoneNumber} - ${number.description}</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="editAuthorizedNumber(${number.id})">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAuthorizedNumber(${number.id})">Delete</button>
+                    </div>
+                `;
+                numbersList.appendChild(li);
+            });
+        });
+}
+
+document.getElementById('addAuthorizedNumberForm').onsubmit = function(e) {
+    e.preventDefault();
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const description = document.getElementById('description').value;
+    fetch('/authorized_numbers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber, description })
+    })
+        .then(response => response.json())
+        .then(() => {
+            loadAuthorizedNumbers();
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('description').value = '';
+        });
+};
+
+function editAuthorizedNumber(id) {
+    const newPhoneNumber = prompt('Enter new phone number:');
+    const newDescription = prompt('Enter new description:');
+    fetch(`/authorized_numbers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber: newPhoneNumber, description: newDescription })
+    })
+        .then(() => loadAuthorizedNumbers());
+}
+
+function deleteAuthorizedNumber(id) {
+    if (confirm('Are you sure you want to delete this number?')) {
+        fetch(`/authorized_numbers/${id}`, { method: 'DELETE' })
+            .then(() => loadAuthorizedNumbers());
+    }
+}
+
+// Add event listener for the toggle button
+document.getElementById('toggleAuthorizedNumbersBtn').addEventListener('click', toggleAuthorizedNumbers);
