@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas Avanzada</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Lista de Tareas Avanzada</h1>
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" id="taskInput" class="form-control" placeholder="Nueva tarea">
+                    <input type="date" id="dueDateInput" class="form-control">
+                    <button class="btn btn-primary" type="button" onclick="addTaskFromInput()">Agregar</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar tareas">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <h2>Tareas Pendientes</h2>
+                <ul id="pendingTaskList" class="list-group mb-4"></ul>
+            </div>
+            <div class="col-md-3">
+                <h2>Tareas en Proceso</h2>
+                <ul id="inProgressTaskList" class="list-group mb-4"></ul>
+            </div>
+            <div class="col-md-3">
+                <h2>Tareas Completadas</h2>
+                <ul id="completedTaskList" class="list-group mb-4"></ul>
+            </div>
+            <div class="col-md-3">
+                <h2>Archivo de Tareas</h2>
+                <button id="toggleArchiveBtn" class="btn btn-secondary mb-2" onclick="toggleArchive()">Mostrar Archivo</button>
+                <ul id="archivedTaskList" class="list-group mb-4" style="display: none;"></ul>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h2>Tareas Pendientes Recibidas por SMS</h2>
+                <ul id="smsPendingTasksList" class="list-group mb-4"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
