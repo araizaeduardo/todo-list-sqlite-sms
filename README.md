@@ -21,14 +21,15 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
    pip install -r requirements.txt
    ```
 3. Configurar las variables de entorno:
-   - Crear un archivo `.env` en la raíz del proyecto
+   - Crear un archivo `.env` en la raíz del proyecto basado en `.env.example`
    - Añadir la clave API de Telnyx: `TELNYX_API_KEY=tu_clave_api_aqui`
    - Añadir la contraseña para gestionar números autorizados: `AUTHORIZED_NUMBERS_PASSWORD=tu_contraseña_segura_aqui`
+   - Añadir el token de autenticación de ngrok: `NGROK_AUTHTOKEN=tu_token_de_ngrok_aqui`
 4. Inicializar la base de datos:
    ```
    python app.py
    ```
-5. Acceder a la aplicación en `http://localhost:5000`
+5. Acceder a la aplicación en `http://localhost:5001`
 
 ## Funcionalidades principales
 
@@ -47,5 +48,24 @@ La aplicación ofrece una interfaz intuitiva para la gestión de tareas, permiti
 - Frontend: HTML, CSS (Bootstrap), JavaScript
 - Base de datos: SQLite
 - API de SMS: Telnyx
+- Túnel seguro: ngrok
 
-Este proyecto demuestra la implementación de una aplicación web full-stack con funcionalidades avanzadas de gestión de tareas, integración de servicios externos y control de acceso para funciones sensibles.
+## Despliegue con Docker
+
+Este proyecto incluye un Dockerfile y un archivo docker-compose.yml para facilitar el despliegue:
+
+1. Asegúrate de tener Docker y Docker Compose instalados en tu sistema.
+2. Configura las variables de entorno en el archivo `.env`.
+3. Ejecuta el siguiente comando para construir y iniciar los contenedores:
+   ```
+    docker-compose up --build
+
+    ```
+    o puedes usar los siguientes comandos para ejecutar la aplicación con los valores reales de las variables de entorno:
+
+   ```
+   NGROK_AUTHTOKEN=real_token TELNYX_API_KEY=real_key AUTHORIZED_NUMBERS_PASSWORD=real_password docker-compose up
+   ```
+4. La aplicación estará disponible en `http://localhost:5001` y se expondrá a través de ngrok.
+
+Este proyecto demuestra la implementación de una aplicación web full-stack con funcionalidades avanzadas de gestión de tareas, integración de servicios externos, control de acceso para funciones sensibles y despliegue containerizado.

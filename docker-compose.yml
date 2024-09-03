@@ -1,0 +1,13 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+      - TELNYX_API_KEY=${TELNYX_API_KEY}
+      - AUTHORIZED_NUMBERS_PASSWORD=${AUTHORIZED_NUMBERS_PASSWORD}
+    volumes:
+      - .:/app
+    restart: always
