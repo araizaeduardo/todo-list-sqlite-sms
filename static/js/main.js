@@ -31,21 +31,28 @@ function renderTask(task) {
         console.error(`Task list not found for status: ${task.status}`);
     }
 }
-
 function createTaskElement(task) {
     const li = document.createElement('li');
     li.className = 'list-group-item';
     li.dataset.taskId = task.id;
     
-    // Determinar el color de fondo basado en la fecha de vencimiento
+    // Determinar el color de fondo basado en la fecha de vencimiento y el estado
     const today = new Date().setHours(0, 0, 0, 0);
     const dueDate = new Date(task.dueDate).setHours(0, 0, 0, 0);
+    const twoDaysFromNow = new Date(today);
+    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
     
-    if (task.status !== 'completed' && task.status !== 'archived') {
+    if (task.status === 'completed') {
+        li.style.backgroundColor = '#cce5ff'; // Azul claro para tareas completadas
+    } else if (task.status !== 'archived') {
         if (dueDate === today) {
             li.style.backgroundColor = '#d4edda'; // Verde claro
         } else if (dueDate < today) {
             li.style.backgroundColor = '#f8d7da'; // Rojo claro
+        } else if (dueDate <= twoDaysFromNow.getTime()) {
+            li.style.backgroundColor = '#fff3cd'; // Amarillo claro
+        } else {
+            li.style.backgroundColor = '#d4edda'; // Verde claro para tareas que no entran en rango rojo o amarillo
         }
     }
     
