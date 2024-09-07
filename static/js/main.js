@@ -37,6 +37,18 @@ function createTaskElement(task) {
     li.className = 'list-group-item';
     li.dataset.taskId = task.id;
     
+    // Determinar el color de fondo basado en la fecha de vencimiento
+    const today = new Date().setHours(0, 0, 0, 0);
+    const dueDate = new Date(task.dueDate).setHours(0, 0, 0, 0);
+    
+    if (task.status !== 'completed' && task.status !== 'archived') {
+        if (dueDate === today) {
+            li.style.backgroundColor = '#d4edda'; // Verde claro
+        } else if (dueDate < today) {
+            li.style.backgroundColor = '#f8d7da'; // Rojo claro
+        }
+    }
+    
     const taskInfo = document.createElement('div');
     taskInfo.innerHTML = `
         <strong>${task.text}</strong><br>

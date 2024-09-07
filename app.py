@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
 from datetime import datetime
 from dotenv import load_dotenv
@@ -6,11 +6,13 @@ import os
 import telnyx
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import url_for
 
 load_dotenv()
 telnyx.api_key = os.getenv('TELNYX_API_KEY')
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Necesario para usar sesiones
 
 # Use the password from .env file
 authorized_numbers_password = os.getenv('AUTHORIZED_NUMBERS_PASSWORD')
@@ -40,6 +42,13 @@ def init_db():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if session.get('authenticated'):
+        return render_template('dashboard.html')
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks():
@@ -112,6 +121,7 @@ def update_task(task_id):
 def check_password():
     data = request.json
     if check_password_hash(app.config['AUTHORIZED_NUMBERS_PASSWORD'], data['password']):
+        session['authenticated'] = True
         return jsonify({"success": True}), 200
     else:
         return jsonify({"success": False}), 401

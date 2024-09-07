@@ -8,6 +8,7 @@ services:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
       - TELNYX_API_KEY=${TELNYX_API_KEY}
       - AUTHORIZED_NUMBERS_PASSWORD=${AUTHORIZED_NUMBERS_PASSWORD}
+      - TELNYX_PHONE_NUMBER=${TELNYX_PHONE_NUMBER}
     volumes:
       - .:/app
     restart: always
