@@ -1,6 +1,6 @@
 ## Screenshot
 
-(screenshot.png)
+![Sample Screenshot](screenshot.PNG)
 
 
 # Lista de Tareas Avanzada
