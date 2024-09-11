@@ -1,3 +1,8 @@
+## Screenshot
+
+![Todo List SMS](screenshot.png)
+
+
 # Lista de Tareas Avanzada
 
 Este proyecto es una aplicación web de lista de tareas avanzada desarrollada con Flask y JavaScript. Permite a los usuarios gestionar sus tareas de manera eficiente, con funcionalidades adicionales como la recepción de tareas por SMS.
