@@ -1,6 +1,6 @@
 ## Screenshot
 
-![Todo List SMS](screenshot.png)
+(screenshot.png)
 
 
 # Lista de Tareas Avanzada
